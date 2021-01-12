@@ -1,14 +1,13 @@
 trigger:
-  - "develop"
   - "master"
 variables:
-  buildConfiguration: "Release"
-  location: "North Europe"
-  acrHostName: "datacatalogregistry.azurecr.io"
-  acrName: "datacatalogregistry"
-  rgName: "datacatalog"
-  imageName: "datacatalog-versioning"
-  webAppName: "datacatalog-versioning-service"
+    buildConfiguration: "Release"
+    location: "North Europe"
+    acrHostName: "newdatacatalogregistry.azurecr.io"
+    acrName: "newdatacatalogregistry"
+    rgName: "newdatacatalog"
+    imageName: "versioningservice"
+    webAppName: "datacataloguserversioningservice"
 
 stages:
   #Build stage
@@ -19,14 +18,6 @@ stages:
           vmImage: "ubuntu-latest"
         steps:
           # Create or update the ACR resource
-          - task: AzureResourceGroupDeployment@2
-            displayName: "Azure Deployment:Create Azure Container Registry"
-            inputs:
-              azureSubscription: "AzureSC"
-              resourceGroupName: "$(rgName)"
-              location: $(location)
-              csmFile: "$(System.DefaultWorkingDirectory)/**/container-registry-template.json"
-              overrideParameters: '-registryName "$(acrName)" -registryLocation "$(location)" -registrySku basic'
           - task: Gradle@2
             inputs:
               workingDirectory: ""
@@ -75,14 +66,14 @@ stages:
             artifact: app
 
             # Create or update Azure App Service
-          - task: AzureResourceGroupDeployment@2
-            displayName: "Azure Deployment:Create Azure App Service"
-            inputs:
-              azureSubscription: "AzureSC"
-              resourceGroupName: "$(rgName)"
-              location: "$(location)"
-              csmFile: "$(Pipeline.Workspace)/**/container-webapp-template.json"
-              overrideParameters: '-webAppName $(webAppName) -hostingPlanName $(webAppName) -appInsightsLocation "$(location)" -sku "B1 Basic" -registryName $(acrName) -registryLocation "$(location)" -registrySku standard -imageName $(imageName):$(Build.BuildId)'
+          #- task: AzureResourceGroupDeployment@2
+          #  displayName: "Azure Deployment:Create Azure App Service"
+          #  inputs:
+          #    azureSubscription: "AzureSC"
+          #    resourceGroupName: "$(rgName)"
+          #    location: "$(location)"
+          #    csmFile: "$(Pipeline.Workspace)/**/container-webapp-template.json"
+          #    overrideParameters: '-webAppName $(webAppName) -hostingPlanName $(webAppName) -appInsightsLocation "$(location)" -sku "B1 Basic" -registryName $(acrName) -registryLocation "$(location)" -registrySku standard -imageName $(imageName):$(Build.BuildId)'
 
           # Deploy App Service
           - task: AzureRmWebAppDeployment@3
